@@ -28,6 +28,8 @@ import com.duckduckgo.app.browser.cookies.db.AuthCookieAllowedDomainEntity
 import com.duckduckgo.app.browser.rating.db.*
 import com.duckduckgo.app.cta.db.DismissedCtaDao
 import com.duckduckgo.app.cta.model.DismissedCta
+import com.duckduckgo.app.downloads.db.DownloadEntity
+import com.duckduckgo.app.downloads.db.DownloadsDao
 import com.duckduckgo.app.fire.fireproofwebsite.data.FireproofWebsiteDao
 import com.duckduckgo.app.fire.fireproofwebsite.data.FireproofWebsiteEntity
 import com.duckduckgo.app.global.events.db.UserEventEntity
@@ -62,6 +64,7 @@ import com.duckduckgo.app.usage.app.AppDaysUsedDao
 import com.duckduckgo.app.usage.app.AppDaysUsedEntity
 import com.duckduckgo.app.usage.search.SearchCountDao
 import com.duckduckgo.app.usage.search.SearchCountEntity
+import java.util.*
 
 @Database(
     exportSchema = true, version = 42,
@@ -94,7 +97,8 @@ import com.duckduckgo.app.usage.search.SearchCountEntity
         LocationPermissionEntity::class,
         PixelEntity::class,
         WebTrackerBlocked::class,
-        AuthCookieAllowedDomainEntity::class
+        AuthCookieAllowedDomainEntity::class,
+        DownloadEntity::class
     ]
 )
 
@@ -141,6 +145,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun pixelDao(): PendingPixelDao
     abstract fun authCookiesAllowedDomainsDao(): AuthCookiesAllowedDomainsDao
     abstract fun webTrackersBlockedDao(): WebTrackersBlockedDao
+    abstract fun downloadsDao(): DownloadsDao
 }
 
 @Suppress("PropertyName")
@@ -548,6 +553,15 @@ class MigrationsProvider(val context: Context) {
             database.execSQL(
                 "UPDATE $USER_STAGE_TABLE_NAME SET appStage = \"${AppStage.ESTABLISHED}\" " +
                     "WHERE appStage = \"${AppStage.DAX_ONBOARDING}\""
+            )
+        }
+    }
+
+    val MIGRATION_41_TO_42: Migration = object : Migration(41, 42) {
+        override fun migrate(database: SupportSQLiteDatabase) {
+            database.execSQL(
+                "CREATE TABLE IF NOT EXISTS `downloads` (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, fileName TEXT NOT NULL, " +
+                    "contentLength INTEGER NOT NULL, createdAt INTEGER NOT NULL)"
             )
         }
     }

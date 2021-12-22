@@ -22,6 +22,7 @@ import android.webkit.URLUtil
 import androidx.annotation.WorkerThread
 import com.duckduckgo.app.browser.downloader.FileDownloader.FileDownloadListener
 import com.duckduckgo.app.browser.downloader.FileDownloader.PendingFileDownload
+import com.duckduckgo.app.downloads.model.DownloadItem
 import java.io.File
 import java.io.Serializable
 import javax.inject.Inject
@@ -45,7 +46,7 @@ interface FileDownloader {
 
     interface FileDownloadListener {
         fun downloadStartedDataUri()
-        fun downloadStartedNetworkFile()
+        fun downloadStartedNetworkFile(dowloadItem: DownloadItem)
         fun downloadFinishedDataUri(
             file: File,
             mimeType: String?

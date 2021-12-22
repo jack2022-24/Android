@@ -163,10 +163,16 @@ import com.duckduckgo.app.browser.databinding.FragmentBrowserTabBinding
 import com.duckduckgo.app.browser.databinding.IncludeOmnibarToolbarBinding
 import com.duckduckgo.app.browser.databinding.IncludeQuickAccessItemsBinding
 import com.duckduckgo.app.browser.databinding.PopupWindowBrowserMenuBinding
+import com.duckduckgo.app.downloads.DownloadCallback
+import com.duckduckgo.app.downloads.DownloadsFileActions
+import com.duckduckgo.app.downloads.FileDownloadCallback
 import com.duckduckgo.app.statistics.isFireproofExperimentEnabled
 import com.duckduckgo.app.widget.AddWidgetLauncher
 import com.duckduckgo.appbuildconfig.api.AppBuildConfig
 import com.google.android.material.snackbar.BaseTransientBottomBar
+import kotlinx.android.synthetic.main.include_cta.*
+import kotlinx.android.synthetic.main.popup_window_browser_menu.view.*
+import kotlinx.coroutines.flow.collectLatest
 import javax.inject.Provider
 
 class BrowserTabFragment :
@@ -270,6 +276,12 @@ class BrowserTabFragment :
 
     @Inject
     lateinit var addWidgetLauncher: AddWidgetLauncher
+
+    @Inject
+    lateinit var downloadsFileActions: DownloadsFileActions
+
+    @Inject
+    lateinit var downloadCallback: DownloadCallback
 
     @Inject
     lateinit var urlExtractingWebViewClient: Provider<UrlExtractingWebViewClient>
@@ -597,6 +609,24 @@ class BrowserTabFragment :
         )
 
         addTabsObserver()
+
+        lifecycleScope.launch {
+            downloadCallback.commands().flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).collectLatest {
+                when (it) {
+                    is FileDownloadCallback.DownloadCommand.ShowDownloadStartedMessage ->
+                        binding.browserLayout.makeSnackbarWithNoBottomInset(getString(it.messageId, it.fileName), Snackbar.LENGTH_SHORT).show()
+                    is FileDownloadCallback.DownloadCommand.ShowDownloadSuccessMessage ->
+                        binding.browserLayout.makeSnackbarWithNoBottomInset(getString(it.messageId, it.fileName), Snackbar.LENGTH_INDEFINITE).apply {
+                            this.setAction(R.string.downloadsDownloadFinishedActionName) { _ ->
+                                downloadsFileActions.openFile(activity!!, File(it.filePath))
+                                this.dismiss()
+                            }
+                        }.show()
+                    is FileDownloadCallback.DownloadCommand.ShowDownloadFailedMessage ->
+                        binding.browserLayout.makeSnackbarWithNoBottomInset(it.messageId, Snackbar.LENGTH_LONG).show()
+                }
+            }
+        }
     }
 
     private fun addTabsObserver() {
@@ -1763,7 +1793,7 @@ class BrowserTabFragment :
         if (requestUserConfirmation) {
             requestDownloadConfirmation(pendingDownload)
         } else {
-            continueDownload(pendingDownload)
+            continueDownload(pendingDownload, "")
         }
     }
 
@@ -2037,6 +2067,10 @@ class BrowserTabFragment :
                 onMenuItemClicked(menuBinding.brokenSitePopupMenuItem) {
                     pixel.fire(AppPixelName.MENU_ACTION_REPORT_BROKEN_SITE_PRESSED)
                     viewModel.onBrokenSiteSelected()
+                }
+                    onMenuItemClicked(menuBinding.downloadsPopupMenuItem) {
+                    pixel.fire(AppPixelName.MENU_ACTION_DOWNLOADS_PRESSED)
+                    browserActivity?.launchDownloads()
                 }
                 onMenuItemClicked(menuBinding.settingsPopupMenuItem) {
                     pixel.fire(AppPixelName.MENU_ACTION_SETTINGS_PRESSED)
@@ -2603,7 +2637,7 @@ class BrowserTabFragment :
     ) {
         Timber.i("Deleting existing file: $file")
         runCatching { file?.delete() }
-        continueDownload(pendingFileDownload)
+        continueDownload(pendingFileDownload, file?.name ?: "")
     }
 
     private fun showDownloadManagerAppSettings() {
@@ -2628,9 +2662,9 @@ class BrowserTabFragment :
         return intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
     }
 
-    override fun continueDownload(pendingFileDownload: PendingFileDownload) {
+    override fun continueDownload(pendingFileDownload: PendingFileDownload, fileName: String) {
         Timber.i("Continuing to download %s", pendingFileDownload)
-        viewModel.download(pendingFileDownload)
+        viewModel.download(pendingFileDownload, fileName)
     }
 
     override fun cancelDownload() {

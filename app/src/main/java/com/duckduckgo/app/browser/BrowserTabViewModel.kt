@@ -76,6 +76,9 @@ import com.duckduckgo.app.browser.ui.HttpAuthenticationDialogFragment.HttpAuthen
 import com.duckduckgo.app.browser.urlextraction.UrlExtractionListener
 import com.duckduckgo.app.cta.ui.*
 import com.duckduckgo.app.di.AppCoroutineScope
+import com.duckduckgo.app.downloads.DownloadCallback
+import com.duckduckgo.app.downloads.model.DownloadItem
+import com.duckduckgo.app.downloads.model.DownloadsRepository
 import com.duckduckgo.app.email.EmailManager
 import com.duckduckgo.app.fire.fireproofwebsite.data.FireproofWebsiteEntity
 import com.duckduckgo.app.fire.fireproofwebsite.data.FireproofWebsiteRepository
@@ -164,7 +167,9 @@ class BrowserTabViewModel(
     @AppCoroutineScope private val appCoroutineScope: CoroutineScope,
     private val appLinksHandler: AppLinksHandler,
     private val variantManager: VariantManager,
-    private val trackingLinkDetector: TrackingLinkDetector
+    private val trackingLinkDetector: TrackingLinkDetector,
+    private val downloadsRepository: DownloadsRepository,
+    private val downloadCallback: DownloadCallback
 ) : WebViewClientListener, EditSavedSiteListener, HttpAuthenticationListener, SiteLocationPermissionDialog.SiteLocationPermissionDialogListener,
     SystemLocationPermissionDialog.SystemLocationPermissionDialogListener, UrlExtractionListener, ViewModel() {
 
@@ -2359,16 +2364,21 @@ class BrowserTabViewModel(
         pixel.enqueueFire(AppPixelName.EMAIL_TOOLTIP_DISMISSED, mapOf(PixelParameter.COHORT to emailManager.getCohort()))
     }
 
-    fun download(pendingFileDownload: FileDownloader.PendingFileDownload) {
+    fun download(pendingFileDownload: FileDownloader.PendingFileDownload, fileName: String) {
         viewModelScope.launch(dispatchers.io()) {
             pixel.fire(AppPixelName.DOWNLOAD_REQUEST_STARTED)
+            downloadCallback.onStart(fileName)
+
             fileDownloader.download(
                 pendingFileDownload,
                 object : FileDownloader.FileDownloadListener {
 
-                    override fun downloadStartedNetworkFile() {
+                    override fun downloadStartedNetworkFile(downloadItem: DownloadItem) {
                         Timber.d("download started: network file")
-                        closeAndReturnToSourceIfBlankTab()
+                        viewModelScope.launch(dispatchers.io()) {
+                            downloadsRepository.insert(downloadItem)
+                            closeAndReturnToSourceIfBlankTab()
+                        }
                     }
 
                     override fun downloadFinishedNetworkFile(
@@ -2518,7 +2528,9 @@ class BrowserTabViewModelFactory @Inject constructor(
     private val appCoroutineScope: Provider<CoroutineScope>,
     private val appLinksHandler: Provider<DuckDuckGoAppLinksHandler>,
     private val variantManager: Provider<VariantManager>,
-    private val trackingLinkDetector: Provider<TrackingLinkDetector>
+    private val trackingLinkDetector: Provider<TrackingLinkDetector>,
+    private val downloadsRepository: Provider<DownloadsRepository>,
+    private val downloadCallback: Provider<DownloadCallback>
 ) : ViewModelFactoryPlugin {
     override fun <T : ViewModel?> create(modelClass: Class<T>): T? {
         with(modelClass) {
@@ -2558,7 +2570,9 @@ class BrowserTabViewModelFactory @Inject constructor(
                     appCoroutineScope.get(),
                     appLinksHandler.get(),
                     variantManager.get(),
-                    trackingLinkDetector.get()
+                    trackingLinkDetector.get(),
+                    downloadsRepository.get(),
+                    downloadCallback.get()
                 ) as T
                 else -> null
             }

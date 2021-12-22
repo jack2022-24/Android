@@ -106,7 +106,15 @@
     <string name="settingsPrivacyPolicyDuckduckgo">Privacy Policy</string>
 
     <!-- Downloads -->
+    <string name="downloadsMenuItem">Downloads</string>
+    <string name="downloadsActivityTitle">Downloads</string>
+    <string name="downloadsActivityNoItemsDescription">No files downloaded yet</string>
     <string name="downloadsErrorMessage">Failed to download. Check internet connection.</string>
+    <string name="downloadsShareTitle">Share with…</string>
+    <string name="downloadsDownloadStartedMessage">Download started for %s</string>
+    <string name="downloadsDownloadFinishedMessage">Download complete for %s</string>
+    <string name="downloadsDownloadFinishedActionName">Open</string>
+    <string name="downloadsDownloadErrorMessage">Failed to download. Check internet connection.</string>
 
     <!-- Home Screen Widget -->
     <string name="homeScreenWidgetAdded">%s widget added to home screen</string>

@@ -762,4 +762,18 @@
         <item name="android:windowIsFloating">true</item>
         <item name="android:backgroundDimEnabled">false</item>
     </style>
+
+    <style name="DownloadsItemNameText">
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textColor">@color/settings_title_color_selector</item>
+        <item name="android:textSize">17sp</item>
+        <item name="android:textStyle">normal</item>
+    </style>
+
+    <style name="DownloadsItemSizeText">
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textColor">@color/settings_subtitle_color_selector</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textStyle">normal</item>
+    </style>
 </resources>

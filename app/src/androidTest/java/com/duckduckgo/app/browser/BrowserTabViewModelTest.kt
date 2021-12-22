@@ -77,6 +77,7 @@ import com.duckduckgo.app.cta.ui.CtaViewModel
 import com.duckduckgo.app.cta.ui.DaxBubbleCta
 import com.duckduckgo.app.cta.ui.DaxDialogCta
 import com.duckduckgo.app.cta.ui.HomePanelCta
+import com.duckduckgo.app.downloads.model.DownloadsRepository
 import com.duckduckgo.app.email.EmailManager
 import com.duckduckgo.app.fire.fireproofwebsite.data.FireproofWebsiteDao
 import com.duckduckgo.app.fire.fireproofwebsite.data.FireproofWebsiteEntity
@@ -281,6 +282,9 @@ class BrowserTabViewModelTest {
     private lateinit var mockVariantManager: VariantManager
 
     @Mock
+    private lateinit var mockDownloadsRepository: DownloadsRepository
+
+    @Mock
     private lateinit var mockFeatureToggle: FeatureToggle
 
     @Mock
@@ -423,7 +427,8 @@ class BrowserTabViewModelTest {
             contentBlocking = mockContentBlocking,
             accessibilitySettingsDataStore = accessibilitySettingsDataStore,
             variantManager = mockVariantManager,
-            trackingLinkDetector = mockTrackingLinkDetector
+            trackingLinkDetector = mockTrackingLinkDetector,
+            downloadsRepository = mockDownloadsRepository
         )
 
         testee.loadData("abc", null, false, false)

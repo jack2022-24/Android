@@ -76,13 +76,14 @@ class DownloadConfirmationFragment : BottomSheetDialogFragment() {
     }
 
     private fun setupViews(view: View) {
-        view.downloadMessage.text = getString(R.string.downloadConfirmationSaveFileTitle, file?.name ?: "")
+        val fileName = file?.name ?: ""
+        view.downloadMessage.text = getString(R.string.downloadConfirmationSaveFileTitle, fileName)
         view.replace.setOnClickListener {
             listener.replaceExistingFile(file, pendingDownload)
             dismiss()
         }
         view.continueDownload.setOnClickListener {
-            listener.continueDownload(pendingDownload)
+            listener.continueDownload(pendingDownload, fileName)
             dismiss()
         }
         view.openWith.setOnClickListener {
@@ -115,7 +116,7 @@ class DownloadConfirmationFragment : BottomSheetDialogFragment() {
             pendingFileDownload: PendingFileDownload
         )
 
-        fun continueDownload(pendingFileDownload: PendingFileDownload)
+        fun continueDownload(pendingFileDownload: PendingFileDownload, fileName: String)
         fun cancelDownload()
     }
 

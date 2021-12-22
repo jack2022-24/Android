@@ -287,6 +287,20 @@ class UriUtilsFilenameExtractorTest {
     }
 
     @Test
+    fun whenUrlContainsFilenameAndMimeTypeIsTextXPython3AndContentDispositionIsEmptyThenFilenameIsReturned() {
+        val url = "https://ddg-name-test-ubsgiobgibsdgsbklsdjgm.netlify.app/uploads/qwertyuiopasdfghjklzxcvbnm1234567890qwertyuiopasdfghjklzxcvbnm/bat.py"
+        val mimeType = "text/x-python3; charset=UTF-8"
+        val contentDisposition = ""
+
+        val extractionResult = testee.extract(buildPendingDownload(url, contentDisposition, mimeType))
+        assertTrue(extractionResult is FilenameExtractor.FilenameExtractionResult.Extracted)
+
+        extractionResult as FilenameExtractor.FilenameExtractionResult.Extracted
+
+        assertEquals("bat.py", extractionResult.filename)
+    }
+
+    @Test
     fun whenNoFilenameAndPathSegmentsThenFirePixel() {
         val url = "http://example.com/cat/600/400"
         val mimeType: String? = null
