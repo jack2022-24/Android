@@ -54,14 +54,15 @@ constructor(
     private val command = Channel<Command>(1, DROP_OLDEST)
 
     fun downloads(): StateFlow<ViewState> = flow {
-                downloadsRepository.getDownloads().collect {
-                    emit(ViewState(downloadItems = it.mapToDownloadViewItems()))
-                }
-            }
-            .stateIn(
-                viewModelScope,
-                SharingStarted.WhileSubscribed(),
-                ViewState(downloadItems = listOf(DownloadViewItem.Empty)))
+        downloadsRepository.getDownloads().collect {
+            emit(ViewState(downloadItems = it.mapToDownloadViewItems()))
+        }
+    }
+        .stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(),
+            ViewState(downloadItems = listOf(DownloadViewItem.Empty))
+        )
 
     fun commands(): Flow<Command> {
         return command.receiveAsFlow()

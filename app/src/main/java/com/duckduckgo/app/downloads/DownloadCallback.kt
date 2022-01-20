@@ -42,12 +42,12 @@ interface DownloadCallback {
 class FileDownloadCallback @Inject constructor(
     private val downloadsRepository: DownloadsRepository,
     private val dispatcher: DispatcherProvider
-): DownloadCallback {
+) : DownloadCallback {
 
     sealed class DownloadCommand {
-        class ShowDownloadStartedMessage(@StringRes val messageId: Int, val fileName: String): DownloadCommand()
-        class ShowDownloadSuccessMessage(@StringRes val messageId: Int, val fileName: String, val filePath: String): DownloadCommand()
-        class ShowDownloadFailedMessage(@StringRes val messageId: Int): DownloadCommand()
+        class ShowDownloadStartedMessage(@StringRes val messageId: Int, val fileName: String) : DownloadCommand()
+        class ShowDownloadSuccessMessage(@StringRes val messageId: Int, val fileName: String, val filePath: String) : DownloadCommand()
+        class ShowDownloadFailedMessage(@StringRes val messageId: Int) : DownloadCommand()
     }
 
     private val command = Channel<DownloadCommand>(1, BufferOverflow.DROP_OLDEST)

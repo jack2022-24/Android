@@ -27,6 +27,6 @@ data class DownloadEntity(
     var downloadStatus: Int = STARTED,
     var fileName: String,
     var contentLength: Long = 0,
-    var filePath:String,
+    var filePath: String,
     var createdAt: Long = System.currentTimeMillis(),
 )

@@ -88,7 +88,8 @@ class DownloadsFileActions @Inject constructor(private val appBuildConfig: AppBu
                 putExtra(Intent.EXTRA_STREAM, fileUri)
             }
         return Intent.createChooser(
-                intent, applicationContext.getString(R.string.downloadsShareTitle))
+            intent, applicationContext.getString(R.string.downloadsShareTitle)
+        )
             .apply {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     // Show a thumbnail preview of the file to be shared on Android Q and above.

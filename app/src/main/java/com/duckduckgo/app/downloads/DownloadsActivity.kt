@@ -42,7 +42,7 @@ class DownloadsActivity : DuckDuckGoActivity() {
     private lateinit var downloadsAdapter: DownloadsAdapter
 
     @Inject
-    lateinit var  downloadsFileActions: DownloadsFileActions
+    lateinit var downloadsFileActions: DownloadsFileActions
 
     private val toolbar
         get() = binding.includeToolbar.toolbar
@@ -61,7 +61,7 @@ class DownloadsActivity : DuckDuckGoActivity() {
 
         lifecycleScope.launch {
             viewModel.commands().flowWithLifecycle(lifecycle, STARTED).collectLatest {
-                when(it) {
+                when (it) {
                     is OpenFile -> {
                         downloadsFileActions.openFile(this@DownloadsActivity, File(it.item.filePath))
 //                         downloadsFileActions.shareFile(this@DownloadsActivity, File(it.item.filePath))

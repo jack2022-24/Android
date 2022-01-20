@@ -22,4 +22,3 @@ interface DownloadsItemListener {
 
     fun onItemClicked(item: DownloadItem)
 }
-
