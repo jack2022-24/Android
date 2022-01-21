@@ -26,7 +26,6 @@ import dagger.SingleInstanceIn
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -63,7 +62,7 @@ class FileDownloadCallback @Inject constructor(
                 downloadStatus = DownloadStatus.FINISHED,
                 contentLength = contentLength
             )
-            downloadsRepository.getDownloadItem(downloadId).collectLatest {
+            downloadsRepository.getDownloadItem(downloadId).let {
                 command.send(DownloadCommand.ShowDownloadSuccessMessage(R.string.downloadsDownloadFinishedMessage, it.fileName, it.filePath))
             }
         }

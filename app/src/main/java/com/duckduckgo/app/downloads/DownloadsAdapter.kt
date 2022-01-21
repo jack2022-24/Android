@@ -16,16 +16,21 @@
 
 package com.duckduckgo.app.downloads
 
+import android.content.Context
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import com.duckduckgo.app.browser.R
+import com.duckduckgo.app.browser.R.layout
 import com.duckduckgo.app.browser.databinding.ViewItemDownloadsEmptyBinding
 import com.duckduckgo.app.browser.databinding.ViewItemDownloadsHeaderBinding
 import com.duckduckgo.app.browser.databinding.ViewItemDownloadsItemBinding
 import com.duckduckgo.app.downloads.DownloadViewItem.Empty
 import com.duckduckgo.app.downloads.DownloadViewItem.Header
 import com.duckduckgo.app.downloads.DownloadViewItem.Item
+import com.duckduckgo.mobile.android.ui.menu.PopupMenu
 
 class DownloadsAdapter(private val downloadsItemListener: DownloadsItemListener) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -37,6 +42,7 @@ class DownloadsAdapter(private val downloadsItemListener: DownloadsItemListener)
             VIEW_TYPE_EMPTY -> EmptyViewHolder(binding = ViewItemDownloadsEmptyBinding.inflate(inflater, parent, false))
             VIEW_TYPE_HEADER -> HeaderViewHolder(binding = ViewItemDownloadsHeaderBinding.inflate(inflater, parent, false))
             VIEW_TYPE_ITEM -> ItemViewHolder(
+                layoutInflater = inflater,
                 binding = ViewItemDownloadsItemBinding.inflate(inflater, parent, false),
                 listener = downloadsItemListener
             )
@@ -81,14 +87,35 @@ class DownloadsAdapter(private val downloadsItemListener: DownloadsItemListener)
         }
     }
 
-    class ItemViewHolder(val binding: ViewItemDownloadsItemBinding, val listener: DownloadsItemListener) :
+    class ItemViewHolder(val layoutInflater: LayoutInflater, val binding: ViewItemDownloadsItemBinding, val listener: DownloadsItemListener) :
         RecyclerView.ViewHolder(binding.root) {
+
+        private val context: Context = binding.root.context
+
         fun bind(item: Item) {
-            binding.downloadsFileName.text = item.downloadItem.fileName
-            binding.downloadsFileSize.text = item.downloadItem.contentLength.toString()
-            binding.downloadsItem.setOnClickListener {
+            val twoListItem = binding.root
+            twoListItem.setContentDescription(context.getString(R.string.downloadsMoreOptionsContentDescription, item.downloadItem.fileName))
+            twoListItem.setTitle(item.downloadItem.fileName)
+            twoListItem.setSubtitle(item.downloadItem.contentLength.toString())
+            twoListItem.setImageResource(R.drawable.ic_file)
+
+            twoListItem.setClickListener {
                 listener.onItemClicked(item.downloadItem)
             }
+
+            twoListItem.setOverflowClickListener { view ->
+                showPopupMenu(view, item)
+            }
+        }
+
+        private fun showPopupMenu(anchor: View, item: Item) {
+            val popupMenu = PopupMenu(layoutInflater, layout.popup_window_download_item_menu)
+            val view = popupMenu.contentView
+            popupMenu.apply {
+                onMenuItemClicked(view.findViewById(R.id.share)) { listener.onShareItemClicked(item.downloadItem) }
+                onMenuItemClicked(view.findViewById(R.id.delete)) { listener.onDeleteItemClicked(item.downloadItem) }
+            }
+            popupMenu.show(binding.root, anchor)
         }
     }
 

@@ -23,28 +23,43 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 
 interface DownloadsRepository {
-    fun insert(downloadItem: DownloadItem): Long
-    fun update(downloadId: Long, downloadStatus: Int, contentLength: Long)
-    fun getDownloads(): Flow<List<DownloadItem>>
-    fun getDownloadItem(downloadId: Long): Flow<DownloadItem>
+    suspend fun insert(downloadItem: DownloadItem): Long
+    suspend fun update(downloadId: Long, downloadStatus: Int, contentLength: Long)
+    suspend fun delete(downloadId: Long)
+    suspend fun deleteAll()
+    suspend fun getDownloads(): List<DownloadItem>
+    suspend fun getDownloadItem(downloadId: Long): DownloadItem
+    fun getDownloadsAsFlow(): Flow<List<DownloadItem>>
 }
 
 class DefaultDownloadsRepository(private val downloadsDao: DownloadsDao) : DownloadsRepository {
 
-    override fun insert(downloadItem: DownloadItem): Long {
+    override suspend fun insert(downloadItem: DownloadItem): Long {
         return downloadsDao.insert(downloadItem.mapToDownloadEntity())
     }
 
-    override fun update(downloadId: Long, downloadStatus: Int, contentLength: Long) {
+    override suspend fun update(downloadId: Long, downloadStatus: Int, contentLength: Long) {
         downloadsDao.update(downloadId, downloadStatus, contentLength)
     }
 
-    override fun getDownloads(): Flow<List<DownloadItem>> {
-        return downloadsDao.getDownloads().distinctUntilChanged().map { it.mapToDownloadItems() }
+    override suspend fun delete(downloadId: Long) {
+        downloadsDao.delete(downloadId)
     }
 
-    override fun getDownloadItem(downloadId: Long): Flow<DownloadItem> {
-        return downloadsDao.getDownloadItem(downloadId).distinctUntilChanged().map { it.mapToDownloadItem() }
+    override suspend fun deleteAll() {
+        downloadsDao.delete()
+    }
+
+    override suspend fun getDownloads(): List<DownloadItem> {
+        return downloadsDao.getDownloads().mapToDownloadItems()
+    }
+
+    override suspend fun getDownloadItem(downloadId: Long): DownloadItem {
+        return downloadsDao.getDownloadItem(downloadId).mapToDownloadItem()
+    }
+
+    override fun getDownloadsAsFlow(): Flow<List<DownloadItem>> {
+        return downloadsDao.getDownloadsAsFlow().distinctUntilChanged().map { it.mapToDownloadItems() }
     }
 
     private fun DownloadEntity.mapToDownloadItem(): DownloadItem =

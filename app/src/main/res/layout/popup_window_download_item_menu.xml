@@ -1,5 +1,6 @@
-<?xml version="1.0" encoding="utf-8"?><!--
-  ~ Copyright (c) 2021 DuckDuckGo
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2022 DuckDuckGo
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -14,6 +15,20 @@
   ~ limitations under the License.
   -->
 
-<com.duckduckgo.mobile.android.ui.view.TwoLineListItem xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content" />
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/popup_menu_bg">
+
+    <TextView
+        android:id="@+id/share"
+        style="@style/Widget.DuckDuckGo.PopupMenuItem"
+        android:text="@string/downloadsItemMenuShare" />
+
+    <TextView
+        android:id="@+id/delete"
+        style="@style/Widget.DuckDuckGo.PopupMenuItem"
+        android:text="@string/downloadsItemMenuDelete" />
+
+</LinearLayout>

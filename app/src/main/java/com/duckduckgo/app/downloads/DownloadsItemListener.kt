@@ -21,4 +21,8 @@ import com.duckduckgo.app.downloads.model.DownloadItem
 interface DownloadsItemListener {
 
     fun onItemClicked(item: DownloadItem)
+
+    fun onShareItemClicked(item: DownloadItem)
+
+    fun onDeleteItemClicked(item: DownloadItem)
 }

@@ -19,13 +19,17 @@ package com.duckduckgo.app.downloads
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import androidx.lifecycle.Lifecycle.State.STARTED
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.duckduckgo.app.browser.R
 import com.duckduckgo.app.browser.databinding.ActivityDownloadsBinding
 import com.duckduckgo.app.downloads.DownloadsViewModel.Command.DisplayMessage
 import com.duckduckgo.app.downloads.DownloadsViewModel.Command.OpenFile
+import com.duckduckgo.app.downloads.DownloadsViewModel.Command.ShareFile
 import com.duckduckgo.app.global.DuckDuckGoActivity
 import com.duckduckgo.mobile.android.ui.viewbinding.viewBinding
 import com.google.android.material.snackbar.Snackbar
@@ -54,7 +58,7 @@ class DownloadsActivity : DuckDuckGoActivity() {
         setupRecyclerView()
 
         lifecycleScope.launch {
-            viewModel.downloads().flowWithLifecycle(lifecycle, STARTED).collect {
+            viewModel.downloads().flowWithLifecycle(lifecycle, STARTED).collectLatest {
                 render(it)
             }
         }
@@ -62,18 +66,30 @@ class DownloadsActivity : DuckDuckGoActivity() {
         lifecycleScope.launch {
             viewModel.commands().flowWithLifecycle(lifecycle, STARTED).collectLatest {
                 when (it) {
-                    is OpenFile -> {
-                        downloadsFileActions.openFile(this@DownloadsActivity, File(it.item.filePath))
-//                         downloadsFileActions.shareFile(this@DownloadsActivity, File(it.item.filePath))
-                    }
-                    else -> Snackbar.make(
+                    is OpenFile -> downloadsFileActions.openFile(this@DownloadsActivity, File(it.item.filePath))
+                    is ShareFile -> downloadsFileActions.shareFile(this@DownloadsActivity, File(it.item.filePath))
+                    is DisplayMessage -> Snackbar.make(
                         binding.root,
-                        (it as DisplayMessage).message,
+                        getString(it.messageId, it.arg),
                         Snackbar.LENGTH_LONG
                     ).show()
                 }
             }
         }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.downloads_activity_menu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.downloads_delete_all -> {
+                viewModel.deleteAllDownloadedItems()
+            }
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     private fun render(viewState: DownloadsViewModel.ViewState) {

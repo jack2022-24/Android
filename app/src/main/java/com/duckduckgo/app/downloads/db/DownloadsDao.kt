@@ -31,9 +31,18 @@ interface DownloadsDao {
     @Query("update downloads set downloadStatus = :downloadStatus, contentLength = :contentLength WHERE downloadId =:downloadId")
     fun update(downloadId: Long, downloadStatus: Int, contentLength: Long)
 
+    @Query("delete from downloads where downloadId = :downloadId")
+    fun delete(downloadId: Long)
+
+    @Query("delete from downloads")
+    fun delete()
+
     @Query("select * from downloads")
-    fun getDownloads(): Flow<List<DownloadEntity>>
+    fun getDownloadsAsFlow(): Flow<List<DownloadEntity>>
+
+    @Query("select * from downloads")
+    fun getDownloads(): List<DownloadEntity>
 
     @Query("select * from downloads where downloadId = :downloadId")
-    fun getDownloadItem(downloadId: Long): Flow<DownloadEntity>
+    fun getDownloadItem(downloadId: Long): DownloadEntity
 }

@@ -115,6 +115,12 @@
     <string name="downloadsDownloadFinishedMessage">Download complete for %s</string>
     <string name="downloadsDownloadFinishedActionName">Open</string>
     <string name="downloadsDownloadErrorMessage">Failed to download. Check internet connection.</string>
+    <string name="downloadsItemMenuShare">Share</string>
+    <string name="downloadsItemMenuDelete">Delete</string>
+    <string name="downloadsActivityMenuDeleteAll">Delete All</string>
+    <string name="downloadsFileDeletedMessage">Deleted %s</string>
+    <string name="downloadsAllFilesDeletedMessage">All files deleted</string>
+    <string name="downloadsMoreOptionsContentDescription">More options for %s</string>
 
     <!-- Home Screen Widget -->
     <string name="homeScreenWidgetAdded">%s widget added to home screen</string>

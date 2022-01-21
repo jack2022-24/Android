@@ -1,14 +1,26 @@
+<!--
+  ~ Copyright (c) 2022 DuckDuckGo
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="40dp"
-    android:height="40dp"
-    android:viewportWidth="40"
-    android:viewportHeight="40">
+    android:width="16dp"
+    android:height="20dp"
+    android:viewportWidth="16"
+    android:viewportHeight="20">
   <path
-      android:pathData="M20,20m-20,0a20,20 0,1 1,40 0a20,20 0,1 1,-40 0"
-      android:fillColor="#E5E5E5"/>
-  <path
-      android:pathData="M24.1667,29.1667H15.8333C13.9924,29.1667 12.5,27.6743 12.5,25.8334V14.1667C12.5,12.3258 13.9924,10.8334 15.8333,10.8334H21.1193C22.0033,10.8334 22.8512,11.1846 23.4763,11.8097L26.5237,14.8571C27.1488,15.4822 27.5,16.33 27.5,17.2141V25.8334C27.5,27.6743 26.0076,29.1667 24.1667,29.1667ZM15.8333,27.5H24.1667C25.0871,27.5 25.8333,26.7538 25.8333,25.8334V17.5H24.1667C22.3257,17.5 20.8333,16.0077 20.8333,14.1667V12.5L15.8333,12.5C14.9129,12.5 14.1667,13.2462 14.1667,14.1667V25.8334C14.1667,26.7538 14.9129,27.5 15.8333,27.5ZM22.5,13.1904V14.1667C22.5,15.0872 23.2462,15.8334 24.1667,15.8334H25.143L22.5,13.1904Z"
-      android:fillColor="#222222"
+      android:pathData="M12.1667,19.1666H3.8333C1.9924,19.1666 0.5,17.6742 0.5,15.8333V4.1666C0.5,2.3256 1.9924,0.8333 3.8333,0.8333H9.1193C10.0033,0.8333 10.8512,1.1844 11.4763,1.8096L14.5237,4.8569C15.1488,5.4821 15.5,6.3299 15.5,7.214V15.8333C15.5,17.6742 14.0076,19.1666 12.1667,19.1666ZM3.8333,17.4999H12.1667C13.0871,17.4999 13.8333,16.7537 13.8333,15.8333V7.4999H12.1667C10.3257,7.4999 8.8333,6.0075 8.8333,4.1666V2.4999L3.8333,2.4999C2.9129,2.4999 2.1667,3.2461 2.1667,4.1666V15.8333C2.1667,16.7537 2.9129,17.4999 3.8333,17.4999ZM10.5,3.1903V4.1666C10.5,5.0871 11.2462,5.8333 12.1667,5.8333H13.143L10.5,3.1903Z"
+      android:fillColor="@color/primaryTextColor"
       android:fillType="evenOdd"/>
 </vector>
-
