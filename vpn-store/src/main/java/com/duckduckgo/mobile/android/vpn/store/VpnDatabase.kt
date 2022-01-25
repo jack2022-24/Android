@@ -124,7 +124,7 @@ abstract class VpnDatabase : RoomDatabase() {
             context: Context,
             vpnDatabase: VpnDatabase
         ) {
-            context.resources.openRawResource(R.raw.full_app_trackers_blocklist_v2).bufferedReader()
+            context.resources.openRawResource(R.raw.full_app_trackers_blocklist).bufferedReader()
                 .use { it.readText() }
                 .also {
                     val blocklist = getFullAppTrackerBlockingList(it)
