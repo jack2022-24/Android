@@ -2614,32 +2614,6 @@ class BrowserTabFragment :
             (!viewState.isEditing || omnibarInput.isNullOrEmpty()) && omnibar.omnibarTextInput.isDifferent(omnibarInput)
     }
 
-    override fun openExistingFile(file: File?) {
-        if (file == null) {
-            Toast.makeText(activity, R.string.downloadConfirmationUnableToOpenFileText, Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        val intent = context?.let { createIntentToOpenFile(it, file) }
-        activity?.packageManager?.let { packageManager ->
-            if (intent?.resolveActivity(packageManager) != null) {
-                startActivity(intent)
-            } else {
-                Timber.e("No suitable activity found")
-                Toast.makeText(activity, R.string.downloadConfirmationUnableToOpenFileText, Toast.LENGTH_SHORT).show()
-            }
-        }
-    }
-
-    override fun replaceExistingFile(
-        file: File?,
-        pendingFileDownload: PendingFileDownload
-    ) {
-        Timber.i("Deleting existing file: $file")
-        runCatching { file?.delete() }
-        continueDownload(pendingFileDownload, file?.name ?: "")
-    }
-
     private fun showDownloadManagerAppSettings() {
         try {
             val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)

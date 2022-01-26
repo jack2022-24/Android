@@ -77,17 +77,9 @@ class DownloadConfirmationFragment : BottomSheetDialogFragment() {
 
     private fun setupViews(view: View) {
         val fileName = file?.name ?: ""
-        view.downloadMessage.text = getString(R.string.downloadConfirmationSaveFileTitle, fileName)
-        view.replace.setOnClickListener {
-            listener.replaceExistingFile(file, pendingDownload)
-            dismiss()
-        }
+        view.downloadMessage.text = fileName
         view.continueDownload.setOnClickListener {
             listener.continueDownload(pendingDownload, fileName)
-            dismiss()
-        }
-        view.openWith.setOnClickListener {
-            listener.openExistingFile(file)
             dismiss()
         }
         view.cancel.setOnClickListener {
@@ -95,27 +87,9 @@ class DownloadConfirmationFragment : BottomSheetDialogFragment() {
             listener.cancelDownload()
             dismiss()
         }
-
-        if (file?.exists() == true) {
-            view.openWith.show()
-            view.replace.show()
-            view.continueDownload.text = getString(R.string.downloadConfirmationKeepBothFilesText)
-            view.continueDownload.leftDrawable(R.drawable.ic_keepboth_brownish_24dp)
-        } else {
-            view.openWith.gone()
-            view.replace.gone()
-            view.continueDownload.text = getString(R.string.downloadConfirmationContinue)
-            view.continueDownload.leftDrawable(R.drawable.ic_file_brownish_24dp)
-        }
     }
 
     interface DownloadConfirmationDialogListener {
-        fun openExistingFile(file: File?)
-        fun replaceExistingFile(
-            file: File?,
-            pendingFileDownload: PendingFileDownload
-        )
-
         fun continueDownload(pendingFileDownload: PendingFileDownload, fileName: String)
         fun cancelDownload()
     }
