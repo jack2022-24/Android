@@ -73,10 +73,12 @@ abstract class DuckDuckGoActivity : DaggerActivity() {
     }
 
     override fun onDestroy() {
-        themeChangeReceiver?.let {
-            LocalBroadcastManager.getInstance(applicationContext).unregisterReceiver(it)
+        if (!isDestroyed) {
+            themeChangeReceiver?.let {
+                LocalBroadcastManager.getInstance(applicationContext).unregisterReceiver(it)
+            }
+            super.onDestroy()
         }
-        super.onDestroy()
     }
 
     fun setupToolbar(toolbar: Toolbar) {
