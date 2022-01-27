@@ -197,6 +197,8 @@ class NetworkFileDownloader @Inject constructor(
             addRequestHeader("Cookie", CookieManager.getInstance().getCookie(pendingDownload.url))
             setMimeType(pendingDownload.mimeType)
             setAllowedOverMetered(true)
+            setTitle(guessedFileName)
+            setDescription(guessedFileName)
             setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI or DownloadManager.Request.NETWORK_MOBILE)
             setDestinationInExternalPublicDir(pendingDownload.subfolder, guessedFileName)
             setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)

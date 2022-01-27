@@ -900,7 +900,7 @@ class BrowserTabViewModel(
                         val columnCurrent = cursor.getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR)
                         val current = cursor.getInt(columnCurrent)
 
-                        Timber.d("DownloadManager status $status reason $reason total $total current $current")
+                        Timber.d("DownloadManager job $id status $status reason $reason total $total current $current")
                         delay(1000)
                     }
                 }
