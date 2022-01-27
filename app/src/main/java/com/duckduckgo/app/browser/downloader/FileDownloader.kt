@@ -45,7 +45,7 @@ interface FileDownloader {
 
     interface FileDownloadListener {
         fun downloadStartedDataUri()
-        fun downloadStartedNetworkFile()
+        fun downloadStartedNetworkFile(requestId: Long?)
         fun downloadFinishedDataUri(
             file: File,
             mimeType: String?

@@ -17,6 +17,10 @@
 package com.duckduckgo.app.browser
 
 import android.annotation.SuppressLint
+import android.app.DownloadManager
+import android.app.DownloadManager.Query
+import android.content.Context
+import android.database.Cursor
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Message
@@ -30,6 +34,7 @@ import android.webkit.WebChromeClient
 import android.webkit.WebView
 import androidx.annotation.AnyThread
 import androidx.annotation.VisibleForTesting
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.net.toUri
 import androidx.lifecycle.*
 import androidx.lifecycle.Observer
@@ -51,7 +56,6 @@ import com.duckduckgo.app.browser.BrowserTabViewModel.GlobalLayoutViewState.Inva
 import com.duckduckgo.app.browser.LongPressHandler.RequiredAction
 import com.duckduckgo.app.browser.SpecialUrlDetector.UrlType.AppLink
 import com.duckduckgo.app.browser.SpecialUrlDetector.UrlType.NonHttpAppLink
-import com.duckduckgo.app.browser.WebNavigationStateChange.NewPage
 import com.duckduckgo.app.browser.addtohome.AddToHomeCapabilityDetector
 import com.duckduckgo.app.browser.applinks.AppLinksHandler
 import com.duckduckgo.app.browser.applinks.DuckDuckGoAppLinksHandler
@@ -161,7 +165,8 @@ class BrowserTabViewModel(
     private val accessibilitySettingsDataStore: AccessibilitySettingsDataStore,
     @AppCoroutineScope private val appCoroutineScope: CoroutineScope,
     private val appLinksHandler: AppLinksHandler,
-    private val variantManager: VariantManager
+    private val variantManager: VariantManager,
+    private val context: Context,
 ) : WebViewClientListener, EditSavedSiteListener, HttpAuthenticationListener, SiteLocationPermissionDialog.SiteLocationPermissionDialogListener,
     SystemLocationPermissionDialog.SystemLocationPermissionDialogListener, ViewModel() {
 
@@ -874,6 +879,32 @@ class BrowserTabViewModel(
     fun closeAndReturnToSourceIfBlankTab() {
         if (url == null) {
             closeAndSelectSourceTab()
+        }
+    }
+
+    private fun monitorDownloadState(id: Long?){
+        viewModelScope.launch(dispatchers.io()) {
+            if (id != null){
+                val downloadManager = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+                val myDownloadQuery = Query().setFilterById(id)
+
+                while(true){
+                    val cursor: Cursor = downloadManager.query(myDownloadQuery)
+                    if (cursor.moveToFirst()) {
+                        val columnIndex = cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)
+                        val status = cursor.getInt(columnIndex)
+                        val columnReason = cursor.getColumnIndex(DownloadManager.COLUMN_REASON)
+                        val reason = cursor.getInt(columnReason)
+                        val columnTotal = cursor.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES)
+                        val total = cursor.getInt(columnTotal)
+                        val columnCurrent = cursor.getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR)
+                        val current = cursor.getInt(columnCurrent)
+
+                        Timber.d("DownloadManager status $status reason $reason total $total current $current")
+                        delay(1000)
+                    }
+                }
+            }
         }
     }
 
@@ -2338,9 +2369,10 @@ class BrowserTabViewModel(
                 pendingFileDownload,
                 object : FileDownloader.FileDownloadListener {
 
-                    override fun downloadStartedNetworkFile() {
+                    override fun downloadStartedNetworkFile(requestId: Long?) {
                         Timber.d("download started: network file")
                         closeAndReturnToSourceIfBlankTab()
+                        monitorDownloadState(requestId)
                     }
 
                     override fun downloadFinishedNetworkFile(
@@ -2460,7 +2492,8 @@ class BrowserTabViewModelFactory @Inject constructor(
     private val accessibilitySettingsDataStore: Provider<AccessibilitySettingsDataStore>,
     private val appCoroutineScope: Provider<CoroutineScope>,
     private val appLinksHandler: Provider<DuckDuckGoAppLinksHandler>,
-    private val variantManager: Provider<VariantManager>
+    private val variantManager: Provider<VariantManager>,
+    private val context: Provider<Context>
 ) : ViewModelFactoryPlugin {
     override fun <T : ViewModel?> create(modelClass: Class<T>): T? {
         with(modelClass) {
@@ -2499,7 +2532,8 @@ class BrowserTabViewModelFactory @Inject constructor(
                     accessibilitySettingsDataStore.get(),
                     appCoroutineScope.get(),
                     appLinksHandler.get(),
-                    variantManager.get()
+                    variantManager.get(),
+                    context.get()
                 ) as T
                 else -> null
             }

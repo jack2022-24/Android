@@ -196,12 +196,14 @@ class NetworkFileDownloader @Inject constructor(
             addRequestHeader("User-Agent", pendingDownload.userAgent)
             addRequestHeader("Cookie", CookieManager.getInstance().getCookie(pendingDownload.url))
             setMimeType(pendingDownload.mimeType)
+            setAllowedOverMetered(true)
+            setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI or DownloadManager.Request.NETWORK_MOBILE)
             setDestinationInExternalPublicDir(pendingDownload.subfolder, guessedFileName)
             setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
         }
         val manager = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager?
-        manager?.enqueue(request)
-        callback.downloadStartedNetworkFile()
+        val requestId =  manager?.enqueue(request)
+        callback.downloadStartedNetworkFile(requestId)
     }
 
     companion object {
