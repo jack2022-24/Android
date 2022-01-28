@@ -122,6 +122,9 @@
     <string name="downloadsAllFilesDeletedMessage">All files deleted</string>
     <string name="downloadsMoreOptionsContentDescription">More options for %s</string>
 
+    <!-- Tabs -->
+    <string name="downloadsMenuItemTitle">Downloads</string>
+
     <!-- Home Screen Widget -->
     <string name="homeScreenWidgetAdded">%s widget added to home screen</string>
     <string name="settingsAddHomeScreenWidget">Home Screen Widget</string>
