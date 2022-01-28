@@ -31,6 +31,7 @@ import com.duckduckgo.app.downloads.DownloadViewItem.Empty
 import com.duckduckgo.app.downloads.DownloadViewItem.Header
 import com.duckduckgo.app.downloads.DownloadViewItem.Item
 import com.duckduckgo.mobile.android.ui.menu.PopupMenu
+import java.math.BigDecimal
 
 class DownloadsAdapter(private val downloadsItemListener: DownloadsItemListener) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -96,7 +97,7 @@ class DownloadsAdapter(private val downloadsItemListener: DownloadsItemListener)
             val twoListItem = binding.root
             twoListItem.setContentDescription(context.getString(R.string.downloadsMoreOptionsContentDescription, item.downloadItem.fileName))
             twoListItem.setTitle(item.downloadItem.fileName)
-            twoListItem.setSubtitle(item.downloadItem.contentLength.toString())
+            twoListItem.setSubtitle(convertSize(item.downloadItem.contentLength.toDouble()))
             twoListItem.setImageResource(R.drawable.ic_file)
 
             twoListItem.setClickListener {
@@ -116,6 +117,20 @@ class DownloadsAdapter(private val downloadsItemListener: DownloadsItemListener)
                 onMenuItemClicked(view.findViewById(R.id.delete)) { listener.onDeleteItemClicked(item.downloadItem) }
             }
             popupMenu.show(binding.root, anchor)
+        }
+
+        // TODO ANA: move it in a convertor to add tests
+        fun convertSize(sizeBytes: Double): String {
+            val sizeKB = sizeBytes / 1024
+            val sizeMB = sizeKB / 1024
+            val sizeGB = sizeMB / 1024
+
+            return when {
+                sizeGB > 1 -> "${"%.2f".format(sizeGB)} GB"
+                sizeMB > 1 -> "${"%.2f".format(sizeMB)} MB"
+                sizeKB > 1 -> "${"%.2f".format(sizeKB)} KB"
+                else -> "$sizeBytes B"
+            }
         }
     }
 
