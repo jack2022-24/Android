@@ -621,7 +621,9 @@ class BrowserTabFragment :
                                 val result = downloadsFileActions.openFile(requireActivity(), File(it.filePath))
                                 this.dismiss()
                                 if (!result) {
-                                    browserLayout.makeSnackbarWithNoBottomInset(getString(R.string.downloadsCannotOpenFileErrorMessage), Snackbar.LENGTH_SHORT).show()
+                                    browserLayout.makeSnackbarWithNoBottomInset(
+                                        getString(R.string.downloadsCannotOpenFileErrorMessage), Snackbar.LENGTH_SHORT
+                                    ).show()
                                 }
                             }
                         }.show()

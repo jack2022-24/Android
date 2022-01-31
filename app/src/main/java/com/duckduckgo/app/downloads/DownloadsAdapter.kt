@@ -31,7 +31,6 @@ import com.duckduckgo.app.downloads.DownloadViewItem.Empty
 import com.duckduckgo.app.downloads.DownloadViewItem.Header
 import com.duckduckgo.app.downloads.DownloadViewItem.Item
 import com.duckduckgo.mobile.android.ui.menu.PopupMenu
-import java.math.BigDecimal
 
 class DownloadsAdapter(private val downloadsItemListener: DownloadsItemListener) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
