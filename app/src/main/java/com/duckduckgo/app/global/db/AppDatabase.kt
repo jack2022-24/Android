@@ -67,7 +67,7 @@ import com.duckduckgo.app.usage.search.SearchCountEntity
 import java.util.*
 
 @Database(
-    exportSchema = true, version = 42,
+    exportSchema = true, version = 43,
     entities = [
         TdsTracker::class,
         TdsEntity::class,
@@ -557,7 +557,7 @@ class MigrationsProvider(val context: Context) {
         }
     }
 
-    val MIGRATION_41_TO_42: Migration = object : Migration(41, 42) {
+    val MIGRATION_42_TO_43: Migration = object : Migration(41, 42) {
         override fun migrate(database: SupportSQLiteDatabase) {
             database.execSQL(
                 "CREATE TABLE IF NOT EXISTS `downloads` (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, fileName TEXT NOT NULL, " +
@@ -632,7 +632,8 @@ class MigrationsProvider(val context: Context) {
             MIGRATION_38_TO_39,
             MIGRATION_39_TO_40,
             MIGRATION_40_TO_41,
-            MIGRATION_41_TO_42
+            MIGRATION_41_TO_42,
+            MIGRATION_42_TO_43
         )
 
     @Deprecated(
