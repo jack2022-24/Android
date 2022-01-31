@@ -106,7 +106,7 @@ class NetworkFileDownloader @Inject constructor(
 
         if (!downloadManagerAvailable()) {
             Timber.d("Download manager not available, end downloading ${pendingDownload.url}.")
-            callback.downloadFailed(context.getString(R.string.downloadManagerDisabled), DownloadFailReason.DownloadManagerDisabled)
+            callback.downloadFailed(context.getString(R.string.downloadsDownloadManagerDisabledErrorMessage), DownloadFailReason.DownloadManagerDisabled)
             return
         }
 

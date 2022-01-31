@@ -56,15 +56,13 @@ class FileDownloadCallback @Inject constructor(
     }
 
     override suspend fun onSuccess(downloadId: Long, contentLength: Long) {
-        withContext(dispatcher.io()) {
-            downloadsRepository.update(
-                downloadId = downloadId,
-                downloadStatus = DownloadStatus.FINISHED,
-                contentLength = contentLength
-            )
-            downloadsRepository.getDownloadItem(downloadId).let {
-                command.send(DownloadCommand.ShowDownloadSuccessMessage(R.string.downloadsDownloadFinishedMessage, it.fileName, it.filePath))
-            }
+        downloadsRepository.update(
+            downloadId = downloadId,
+            downloadStatus = DownloadStatus.FINISHED,
+            contentLength = contentLength
+        )
+        downloadsRepository.getDownloadItem(downloadId).let {
+            command.send(DownloadCommand.ShowDownloadSuccessMessage(R.string.downloadsDownloadFinishedMessage, it.fileName, it.filePath))
         }
     }
 

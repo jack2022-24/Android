@@ -66,7 +66,28 @@ class DownloadsActivity : DuckDuckGoActivity() {
         lifecycleScope.launch {
             viewModel.commands().flowWithLifecycle(lifecycle, STARTED).collectLatest {
                 when (it) {
-                    is OpenFile -> downloadsFileActions.openFile(this@DownloadsActivity, File(it.item.filePath))
+                    is OpenFile -> {
+                        val file = File(it.item.filePath)
+                        when {
+                            file.canRead() -> {
+                                val result = downloadsFileActions.openFile(this@DownloadsActivity, file)
+                                if (!result) {
+                                    Snackbar.make(
+                                        binding.root,
+                                        getString(R.string.downloadsCannotOpenFileErrorMessage),
+                                        Snackbar.LENGTH_LONG
+                                    ).show()
+                                }
+                            }
+                            else -> {
+                                Snackbar.make(
+                                    binding.root,
+                                    getString(R.string.downloadsFileNotFoundErrorMessage),
+                                    Snackbar.LENGTH_LONG
+                                ).show()
+                            }
+                        }
+                    }
                     is ShareFile -> downloadsFileActions.shareFile(this@DownloadsActivity, File(it.item.filePath))
                     is DisplayMessage -> Snackbar.make(
                         binding.root,

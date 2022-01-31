@@ -618,8 +618,11 @@ class BrowserTabFragment :
                     is FileDownloadCallback.DownloadCommand.ShowDownloadSuccessMessage ->
                         binding.browserLayout.makeSnackbarWithNoBottomInset(getString(it.messageId, it.fileName), Snackbar.LENGTH_INDEFINITE).apply {
                             this.setAction(R.string.downloadsDownloadFinishedActionName) { _ ->
-                                downloadsFileActions.openFile(activity!!, File(it.filePath))
+                                val result = downloadsFileActions.openFile(requireActivity(), File(it.filePath))
                                 this.dismiss()
+                                if (!result) {
+                                    browserLayout.makeSnackbarWithNoBottomInset(getString(R.string.downloadsCannotOpenFileErrorMessage), Snackbar.LENGTH_SHORT).show()
+                                }
                             }
                         }.show()
                     is FileDownloadCallback.DownloadCommand.ShowDownloadFailedMessage ->

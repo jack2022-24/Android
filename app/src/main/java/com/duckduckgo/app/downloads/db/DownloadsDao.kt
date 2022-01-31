@@ -26,23 +26,23 @@ import kotlinx.coroutines.flow.Flow
 interface DownloadsDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(downloadItem: DownloadEntity): Long
+    suspend fun insert(downloadItem: DownloadEntity): Long
 
     @Query("update downloads set downloadStatus = :downloadStatus, contentLength = :contentLength WHERE downloadId =:downloadId")
-    fun update(downloadId: Long, downloadStatus: Int, contentLength: Long)
+    suspend fun update(downloadId: Long, downloadStatus: Int, contentLength: Long)
 
     @Query("delete from downloads where downloadId = :downloadId")
-    fun delete(downloadId: Long)
+    suspend fun delete(downloadId: Long)
 
     @Query("delete from downloads")
-    fun delete()
+    suspend fun delete()
 
     @Query("select * from downloads")
     fun getDownloadsAsFlow(): Flow<List<DownloadEntity>>
 
     @Query("select * from downloads")
-    fun getDownloads(): List<DownloadEntity>
+    suspend fun getDownloads(): List<DownloadEntity>
 
     @Query("select * from downloads where downloadId = :downloadId")
-    fun getDownloadItem(downloadId: Long): DownloadEntity
+    suspend fun getDownloadItem(downloadId: Long): DownloadEntity
 }
