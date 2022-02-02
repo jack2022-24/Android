@@ -24,6 +24,7 @@ import kotlinx.coroutines.flow.map
 
 interface DownloadsRepository {
     suspend fun insert(downloadItem: DownloadItem): Long
+    suspend fun insertAll(downloadItems: List<DownloadItem>)
     suspend fun update(downloadId: Long, downloadStatus: Int, contentLength: Long)
     suspend fun delete(downloadId: Long)
     suspend fun deleteAll()
@@ -36,6 +37,10 @@ class DefaultDownloadsRepository(private val downloadsDao: DownloadsDao) : Downl
 
     override suspend fun insert(downloadItem: DownloadItem): Long {
         return downloadsDao.insert(downloadItem.mapToDownloadEntity())
+    }
+
+    override suspend fun insertAll(downloadItems: List<DownloadItem>) {
+        downloadsDao.insertAll(downloadItems.mapToDownloadEntities())
     }
 
     override suspend fun update(downloadId: Long, downloadStatus: Int, contentLength: Long) {
@@ -84,4 +89,7 @@ class DefaultDownloadsRepository(private val downloadsDao: DownloadsDao) : Downl
             filePath = this.filePath,
             createdAt = this.createdAt,
         )
+
+    private fun List<DownloadItem>.mapToDownloadEntities(): List<DownloadEntity> =
+        this.map { it.mapToDownloadEntity() }
 }

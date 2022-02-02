@@ -28,10 +28,12 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.duckduckgo.app.browser.R
 import com.duckduckgo.app.browser.databinding.ActivityDownloadsBinding
 import com.duckduckgo.app.downloads.DownloadsViewModel.Command.DisplayMessage
+import com.duckduckgo.app.downloads.DownloadsViewModel.Command.DisplayUndoMessage
 import com.duckduckgo.app.downloads.DownloadsViewModel.Command.OpenFile
 import com.duckduckgo.app.downloads.DownloadsViewModel.Command.ShareFile
 import com.duckduckgo.app.global.DuckDuckGoActivity
 import com.duckduckgo.mobile.android.ui.viewbinding.viewBinding
+import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -88,6 +90,27 @@ class DownloadsActivity : DuckDuckGoActivity() {
                         getString(it.messageId, it.arg),
                         Snackbar.LENGTH_LONG
                     ).show()
+                    is DisplayUndoMessage -> Snackbar.make(
+                        binding.root,
+                        getString(it.messageId, it.arg),
+                        Snackbar.LENGTH_LONG
+                    ).setAction(R.string.downloadsUndoActionName) {
+                        // noop, handled in onDismissed callback
+                    }.addCallback(object : Snackbar.Callback() {
+                        override fun onDismissed(
+                            transientBottomBar: Snackbar?,
+                            event: Int
+                        ) {
+                            when (event) {
+                                // handle the UNDO action here as we only have one
+                                BaseTransientBottomBar.BaseCallback.DISMISS_EVENT_ACTION -> viewModel.insert(it.items)
+                                BaseTransientBottomBar.BaseCallback.DISMISS_EVENT_SWIPE,
+                                BaseTransientBottomBar.BaseCallback.DISMISS_EVENT_TIMEOUT -> viewModel.deleteFilesFromDisk(it.items)
+                                BaseTransientBottomBar.BaseCallback.DISMISS_EVENT_CONSECUTIVE,
+                                BaseTransientBottomBar.BaseCallback.DISMISS_EVENT_MANUAL -> { /* noop */ }
+                            }
+                        }
+                    }).show()
                 }
             }
         }

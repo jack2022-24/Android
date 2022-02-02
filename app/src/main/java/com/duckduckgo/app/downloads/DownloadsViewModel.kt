@@ -21,6 +21,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.duckduckgo.app.browser.R
 import com.duckduckgo.app.downloads.DownloadsViewModel.Command.DisplayMessage
+import com.duckduckgo.app.downloads.DownloadsViewModel.Command.DisplayUndoMessage
 import com.duckduckgo.app.downloads.DownloadsViewModel.Command.OpenFile
 import com.duckduckgo.app.downloads.DownloadsViewModel.Command.ShareFile
 import com.duckduckgo.app.downloads.model.DownloadItem
@@ -59,6 +60,7 @@ constructor(
 
     sealed class Command {
         data class DisplayMessage(@StringRes val messageId: Int, val arg: String = "") : Command()
+        data class DisplayUndoMessage(@StringRes val messageId: Int, val arg: String = "", val items: List<DownloadItem> = emptyList()) : Command()
         data class OpenFile(val item: DownloadItem) : Command()
         data class ShareFile(val item: DownloadItem) : Command()
     }
@@ -84,13 +86,8 @@ constructor(
     fun deleteAllDownloadedItems() {
         viewModelScope.launch(dispatcher.io()) {
             val itemsToDelete = downloadsRepository.getDownloads()
-
-            itemsToDelete.forEach {
-                File(it.filePath).delete()
-            }
-
             downloadsRepository.deleteAll()
-            command.send(DisplayMessage(R.string.downloadsAllFilesDeletedMessage))
+            command.send(DisplayUndoMessage(messageId = R.string.downloadsAllFilesDeletedMessage, items = itemsToDelete))
         }
     }
 
@@ -98,6 +95,18 @@ constructor(
         viewModelScope.launch(dispatcher.io()) {
             downloadsRepository.delete(item.downloadId)
             command.send(DisplayMessage(R.string.downloadsCannotOpenFileErrorMessage))
+        }
+    }
+
+    fun insert(items: List<DownloadItem>) {
+        viewModelScope.launch(dispatcher.io()) {
+            downloadsRepository.insertAll(items)
+        }
+    }
+
+    fun deleteFilesFromDisk(items: List<DownloadItem>) {
+        items.forEach {
+            File(it.filePath).delete()
         }
     }
 
@@ -111,15 +120,16 @@ constructor(
 
     override fun onDeleteItemClicked(item: DownloadItem) {
         viewModelScope.launch(dispatcher.io()) {
-            File(item.filePath).delete()
             downloadsRepository.delete(item.downloadId)
-            command.send(DisplayMessage(R.string.downloadsFileDeletedMessage, item.fileName))
+            command.send(DisplayUndoMessage(messageId = R.string.downloadsFileDeletedMessage, arg = item.fileName, items = listOf(item)))
         }
     }
 
     private fun DownloadItem.mapToDownloadViewItem(): DownloadViewItem = DownloadViewItem.Item(this)
 
     private fun List<DownloadItem>.mapToDownloadViewItems(): List<DownloadViewItem> {
+        if (this.isEmpty()) return emptyList()
+
         val itemViews = mutableListOf<DownloadViewItem>()
         var previousDate = timestamp(LocalDateTime.ofInstant(Instant.ofEpochMilli(this[0].createdAt), ZoneId.systemDefault()))
 

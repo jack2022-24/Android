@@ -28,6 +28,9 @@ interface DownloadsDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(downloadItem: DownloadEntity): Long
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAll(downloadItems: List<DownloadEntity>)
+
     @Query("update downloads set downloadStatus = :downloadStatus, contentLength = :contentLength WHERE downloadId =:downloadId")
     suspend fun update(downloadId: Long, downloadStatus: Int, contentLength: Long)
 
