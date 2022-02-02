@@ -1851,7 +1851,7 @@ class BrowserTabViewModel(
                 true
             }
             is RequiredAction.DownloadFile -> {
-                command.value = DownloadImage(requiredAction.url, false)
+                command.value = DownloadImage(requiredAction.url, true)
                 true
             }
             is RequiredAction.ShareLink -> {
