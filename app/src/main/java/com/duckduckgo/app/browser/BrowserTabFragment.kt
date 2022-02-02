@@ -1837,7 +1837,7 @@ class BrowserTabFragment :
             PERMISSION_REQUEST_WRITE_EXTERNAL_STORAGE -> {
                 if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Timber.i("Write external storage permission granted")
-                    downloadFile(requestUserConfirmation = false)
+                    downloadFile(requestUserConfirmation = true)
                 } else {
                     Timber.i("Write external storage permission refused")
                     omnibar.toolbar.makeSnackbarWithNoBottomInset(R.string.permissionRequiredToDownload, Snackbar.LENGTH_LONG).show()
