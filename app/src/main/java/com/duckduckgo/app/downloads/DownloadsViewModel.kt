@@ -94,6 +94,13 @@ constructor(
         }
     }
 
+    fun delete(item: DownloadItem) {
+        viewModelScope.launch(dispatcher.io()) {
+            downloadsRepository.delete(item.downloadId)
+            command.send(DisplayMessage(R.string.downloadsCannotOpenFileErrorMessage))
+        }
+    }
+
     override fun onItemClicked(item: DownloadItem) {
         viewModelScope.launch { command.send(OpenFile(item)) }
     }

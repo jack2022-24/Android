@@ -69,7 +69,7 @@ class DownloadsActivity : DuckDuckGoActivity() {
                     is OpenFile -> {
                         val file = File(it.item.filePath)
                         when {
-                            file.canRead() -> {
+                            file.exists() -> {
                                 val result = downloadsFileActions.openFile(this@DownloadsActivity, file)
                                 if (!result) {
                                     Snackbar.make(
@@ -79,13 +79,7 @@ class DownloadsActivity : DuckDuckGoActivity() {
                                     ).show()
                                 }
                             }
-                            else -> {
-                                Snackbar.make(
-                                    binding.root,
-                                    getString(R.string.downloadsFileNotFoundErrorMessage),
-                                    Snackbar.LENGTH_LONG
-                                ).show()
-                            }
+                            else -> viewModel.delete(it.item)
                         }
                     }
                     is ShareFile -> downloadsFileActions.shareFile(this@DownloadsActivity, File(it.item.filePath))

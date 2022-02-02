@@ -103,7 +103,7 @@ class FilenameExtractor @Inject constructor(
 
     private fun handleDuplicates(filename: String, directory: File): String {
         var fullPathFile = File(directory, filename)
-        if (fullPathFile.canRead()) {
+        if (fullPathFile.exists()) {
             fullPathFile = addCountSuffix(fullPathFile, directory)
         }
         return fullPathFile.name
@@ -122,7 +122,7 @@ class FilenameExtractor @Inject constructor(
                 else -> File(directory, "${filename.substring(0, index)}-$count${filename.substring(index)}")
             }
             count++
-        } while (fullPathFile.canRead())
+        } while (fullPathFile.exists())
 
         return fullPathFile
     }
