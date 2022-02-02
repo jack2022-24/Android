@@ -557,11 +557,12 @@ class MigrationsProvider(val context: Context) {
         }
     }
 
-    val MIGRATION_42_TO_43: Migration = object : Migration(41, 42) {
+    val MIGRATION_42_TO_43: Migration = object : Migration(42, 43) {
         override fun migrate(database: SupportSQLiteDatabase) {
             database.execSQL(
-                "CREATE TABLE IF NOT EXISTS `downloads` (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, fileName TEXT NOT NULL, " +
-                    "contentLength INTEGER NOT NULL, createdAt INTEGER NOT NULL)"
+                "CREATE TABLE IF NOT EXISTS `downloads` (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, downloadId INTEGER NOT NULL, " +
+                    "downloadStatus INTEGER NOT NULL, fileName TEXT NOT NULL, contentLength INTEGER NOT NULL, " +
+                    "filePath TEXT NOT NULL, createdAt INTEGER NOT NULL)"
             )
         }
     }

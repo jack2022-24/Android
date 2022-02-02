@@ -77,6 +77,7 @@ import com.duckduckgo.app.cta.ui.CtaViewModel
 import com.duckduckgo.app.cta.ui.DaxBubbleCta
 import com.duckduckgo.app.cta.ui.DaxDialogCta
 import com.duckduckgo.app.cta.ui.HomePanelCta
+import com.duckduckgo.app.downloads.DownloadCallback
 import com.duckduckgo.app.downloads.model.DownloadsRepository
 import com.duckduckgo.app.email.EmailManager
 import com.duckduckgo.app.fire.fireproofwebsite.data.FireproofWebsiteDao
@@ -282,9 +283,6 @@ class BrowserTabViewModelTest {
     private lateinit var mockVariantManager: VariantManager
 
     @Mock
-    private lateinit var mockDownloadsRepository: DownloadsRepository
-
-    @Mock
     private lateinit var mockFeatureToggle: FeatureToggle
 
     @Mock
@@ -295,6 +293,12 @@ class BrowserTabViewModelTest {
 
     @Mock
     private lateinit var mockTrackingLinkDetector: TrackingLinkDetector
+
+    @Mock
+    private lateinit var mockDownloadsRepository: DownloadsRepository
+
+    @Mock
+    private lateinit var mockDownloadCallback: DownloadCallback
 
     private val lazyFaviconManager = Lazy { mockFaviconManager }
 
@@ -428,7 +432,8 @@ class BrowserTabViewModelTest {
             accessibilitySettingsDataStore = accessibilitySettingsDataStore,
             variantManager = mockVariantManager,
             trackingLinkDetector = mockTrackingLinkDetector,
-            downloadsRepository = mockDownloadsRepository
+            downloadsRepository = mockDownloadsRepository,
+            downloadCallback = mockDownloadCallback
         )
 
         testee.loadData("abc", null, false, false)
@@ -1250,7 +1255,7 @@ class BrowserTabViewModelTest {
     }
 
     @Test
-    fun whenUserSelectsDownloadImageOptionFromContextMenuThenDownloadCommandIssuedWithoutRequirementForFurtherUserConfirmation() {
+    fun whenUserSelectsDownloadImageOptionFromContextMenuThenDownloadCommandIssuedWithUserConfirmation() {
         whenever(mockLongPressHandler.userSelectedMenuItem(any(), any()))
             .thenReturn(DownloadFile("example.com"))
 
@@ -1262,7 +1267,7 @@ class BrowserTabViewModelTest {
 
         val lastCommand = commandCaptor.lastValue as Command.DownloadImage
         assertEquals("example.com", lastCommand.url)
-        assertFalse(lastCommand.requestUserConfirmation)
+        assertTrue(lastCommand.requestUserConfirmation)
     }
 
     @Test
@@ -3709,7 +3714,7 @@ class BrowserTabViewModelTest {
     fun whenDownloadIsCalledThenDownloadRequestStartedPixelFired() {
         val pendingFileDownload = buildPendingDownload(url = "http://www.example.com/download.pdf", contentDisposition = null, mimeType = null)
 
-        testee.download(pendingFileDownload)
+        testee.download(pendingFileDownload, "download.pdf")
 
         verify(mockPixel).fire(AppPixelName.DOWNLOAD_REQUEST_STARTED)
     }
@@ -3724,7 +3729,7 @@ class BrowserTabViewModelTest {
             )
         }
 
-        testee.download(pendingFileDownload)
+        testee.download(pendingFileDownload, "image.jpg")
 
         verify(mockPixel).fire(AppPixelName.DOWNLOAD_REQUEST_STARTED)
         verify(mockPixel).fire(AppPixelName.DOWNLOAD_REQUEST_SUCCEEDED)
@@ -3740,7 +3745,7 @@ class BrowserTabViewModelTest {
             )
         }
 
-        testee.download(pendingFileDownload)
+        testee.download(pendingFileDownload, "image.jpg")
 
         verify(mockPixel).fire(AppPixelName.DOWNLOAD_REQUEST_STARTED)
         verify(mockPixel).fire(AppPixelName.DOWNLOAD_REQUEST_FAILED)

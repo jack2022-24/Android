@@ -21,6 +21,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import androidx.annotation.StringRes
 import androidx.lifecycle.Lifecycle.State.STARTED
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
@@ -60,59 +61,15 @@ class DownloadsActivity : DuckDuckGoActivity() {
         setupRecyclerView()
 
         lifecycleScope.launch {
-            viewModel.downloads().flowWithLifecycle(lifecycle, STARTED).collectLatest {
-                render(it)
-            }
+            viewModel.downloads()
+                .flowWithLifecycle(lifecycle, STARTED)
+                .collectLatest { render(it) }
         }
 
         lifecycleScope.launch {
-            viewModel.commands().flowWithLifecycle(lifecycle, STARTED).collectLatest {
-                when (it) {
-                    is OpenFile -> {
-                        val file = File(it.item.filePath)
-                        when {
-                            file.exists() -> {
-                                val result = downloadsFileActions.openFile(this@DownloadsActivity, file)
-                                if (!result) {
-                                    Snackbar.make(
-                                        binding.root,
-                                        getString(R.string.downloadsCannotOpenFileErrorMessage),
-                                        Snackbar.LENGTH_LONG
-                                    ).show()
-                                }
-                            }
-                            else -> viewModel.delete(it.item)
-                        }
-                    }
-                    is ShareFile -> downloadsFileActions.shareFile(this@DownloadsActivity, File(it.item.filePath))
-                    is DisplayMessage -> Snackbar.make(
-                        binding.root,
-                        getString(it.messageId, it.arg),
-                        Snackbar.LENGTH_LONG
-                    ).show()
-                    is DisplayUndoMessage -> Snackbar.make(
-                        binding.root,
-                        getString(it.messageId, it.arg),
-                        Snackbar.LENGTH_LONG
-                    ).setAction(R.string.downloadsUndoActionName) {
-                        // noop, handled in onDismissed callback
-                    }.addCallback(object : Snackbar.Callback() {
-                        override fun onDismissed(
-                            transientBottomBar: Snackbar?,
-                            event: Int
-                        ) {
-                            when (event) {
-                                // handle the UNDO action here as we only have one
-                                BaseTransientBottomBar.BaseCallback.DISMISS_EVENT_ACTION -> viewModel.insert(it.items)
-                                BaseTransientBottomBar.BaseCallback.DISMISS_EVENT_SWIPE,
-                                BaseTransientBottomBar.BaseCallback.DISMISS_EVENT_TIMEOUT -> viewModel.deleteFilesFromDisk(it.items)
-                                BaseTransientBottomBar.BaseCallback.DISMISS_EVENT_CONSECUTIVE,
-                                BaseTransientBottomBar.BaseCallback.DISMISS_EVENT_MANUAL -> { /* noop */ }
-                            }
-                        }
-                    }).show()
-                }
-            }
+            viewModel.commands()
+                .flowWithLifecycle(lifecycle, STARTED)
+                .collectLatest { processCommands(it) }
         }
     }
 
@@ -123,11 +80,62 @@ class DownloadsActivity : DuckDuckGoActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.downloads_delete_all -> {
-                viewModel.deleteAllDownloadedItems()
-            }
+            R.id.downloads_delete_all -> viewModel.deleteAllDownloadedItems()
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    private fun processCommands(command: DownloadsViewModel.Command) {
+        when (command) {
+            is OpenFile -> showOpen(command)
+            is ShareFile -> showShare(command)
+            is DisplayMessage -> showSnackbar(command.messageId, command.arg)
+            is DisplayUndoMessage -> showUndo(command)
+        }
+    }
+
+    private fun showOpen(command: OpenFile) {
+        val file = File(command.item.filePath)
+        if (file.exists()) {
+            val result = downloadsFileActions.openFile(this@DownloadsActivity, file)
+            if (!result) {
+                showSnackbar(R.string.downloadsCannotOpenFileErrorMessage)
+            }
+        } else {
+            viewModel.delete(command.item)
+        }
+    }
+
+    private fun showShare(command: ShareFile) {
+        downloadsFileActions.shareFile(this@DownloadsActivity, File(command.item.filePath))
+    }
+
+    private fun showUndo(command: DisplayUndoMessage) {
+        Snackbar.make(
+            binding.root,
+            getString(command.messageId, command.arg),
+            Snackbar.LENGTH_LONG
+        ).setAction(R.string.downloadsUndoActionName) {
+            // noop, handled in onDismissed callback
+        }.addCallback(object : Snackbar.Callback() {
+            override fun onDismissed(
+                transientBottomBar: Snackbar?,
+                event: Int
+            ) {
+                when (event) {
+                    // handle the UNDO action here as we only have one
+                    BaseTransientBottomBar.BaseCallback.DISMISS_EVENT_ACTION -> viewModel.insert(command.items)
+                    BaseTransientBottomBar.BaseCallback.DISMISS_EVENT_SWIPE,
+                    BaseTransientBottomBar.BaseCallback.DISMISS_EVENT_TIMEOUT -> viewModel.deleteFilesFromDisk(command.items)
+                    BaseTransientBottomBar.BaseCallback.DISMISS_EVENT_CONSECUTIVE,
+                    BaseTransientBottomBar.BaseCallback.DISMISS_EVENT_MANUAL -> { /* noop */ }
+                }
+            }
+        }).show()
+    }
+
+    private fun showSnackbar(@StringRes messageId: Int, arg: String = "") {
+        Snackbar.make(binding.root, getString(messageId, arg), Snackbar.LENGTH_LONG).show()
     }
 
     private fun render(viewState: DownloadsViewModel.ViewState) {

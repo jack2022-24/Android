@@ -86,8 +86,10 @@ constructor(
     fun deleteAllDownloadedItems() {
         viewModelScope.launch(dispatcher.io()) {
             val itemsToDelete = downloadsRepository.getDownloads()
-            downloadsRepository.deleteAll()
-            command.send(DisplayUndoMessage(messageId = R.string.downloadsAllFilesDeletedMessage, items = itemsToDelete))
+            if (itemsToDelete.isNotEmpty()) {
+                downloadsRepository.deleteAll()
+                command.send(DisplayUndoMessage(messageId = R.string.downloadsAllFilesDeletedMessage, items = itemsToDelete))
+            }
         }
     }
 

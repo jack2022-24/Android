@@ -21,7 +21,6 @@ import com.duckduckgo.app.downloads.FileDownloadCallback
 import com.duckduckgo.app.downloads.db.DownloadsDao
 import com.duckduckgo.app.downloads.model.DefaultDownloadsRepository
 import com.duckduckgo.app.downloads.model.DownloadsRepository
-import com.duckduckgo.app.global.DispatcherProvider
 import com.duckduckgo.di.scopes.AppScope
 import com.squareup.anvil.annotations.ContributesTo
 import dagger.Module
@@ -40,7 +39,7 @@ class DownloadsModule {
 
     @Provides
     @SingleInstanceIn(AppScope::class)
-    fun downloadCallback(downloadsRepository: DownloadsRepository, dispatcher: DispatcherProvider): DownloadCallback {
-        return FileDownloadCallback(downloadsRepository, dispatcher)
+    fun downloadCallback(downloadsRepository: DownloadsRepository): DownloadCallback {
+        return FileDownloadCallback(downloadsRepository)
     }
 }

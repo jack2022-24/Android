@@ -31,8 +31,6 @@ import timber.log.Timber
 
 class DownloadsFileActions @Inject constructor(private val appBuildConfig: AppBuildConfig) {
 
-    fun saveFile() {}
-
     fun openFile(applicationContext: Context, file: File): Boolean {
         val intent = createIntentToOpenFile(applicationContext, file)
         return applicationContext.packageManager?.let { packageManager ->
@@ -50,10 +48,6 @@ class DownloadsFileActions @Inject constructor(private val appBuildConfig: AppBu
         val intent = createShareIntent(applicationContext, file)
         return if (intent != null) startActivity(applicationContext, intent) else false
     }
-
-    fun deleteFile() {}
-
-    fun deleteAllFiles() {}
 
     private fun startActivity(applicationContext: Context, intent: Intent): Boolean {
         return try {

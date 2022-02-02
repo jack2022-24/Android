@@ -20,7 +20,6 @@ import androidx.annotation.StringRes
 import com.duckduckgo.app.browser.R
 import com.duckduckgo.app.downloads.model.DownloadStatus
 import com.duckduckgo.app.downloads.model.DownloadsRepository
-import com.duckduckgo.app.global.DispatcherProvider
 import com.duckduckgo.di.scopes.AppScope
 import dagger.SingleInstanceIn
 import kotlinx.coroutines.channels.BufferOverflow
@@ -38,8 +37,7 @@ interface DownloadCallback {
 
 @SingleInstanceIn(AppScope::class)
 class FileDownloadCallback @Inject constructor(
-    private val downloadsRepository: DownloadsRepository,
-    private val dispatcher: DispatcherProvider
+    private val downloadsRepository: DownloadsRepository
 ) : DownloadCallback {
 
     sealed class DownloadCommand {
@@ -55,11 +53,7 @@ class FileDownloadCallback @Inject constructor(
     }
 
     override suspend fun onSuccess(downloadId: Long, contentLength: Long) {
-        downloadsRepository.update(
-            downloadId = downloadId,
-            downloadStatus = DownloadStatus.FINISHED,
-            contentLength = contentLength
-        )
+        downloadsRepository.update(downloadId = downloadId, downloadStatus = DownloadStatus.FINISHED, contentLength = contentLength)
         downloadsRepository.getDownloadItem(downloadId).let {
             command.send(DownloadCommand.ShowDownloadSuccessMessage(R.string.downloadsDownloadFinishedMessage, it.fileName, it.filePath))
         }

@@ -611,27 +611,32 @@ class BrowserTabFragment :
         addTabsObserver()
 
         lifecycleScope.launch {
-            downloadCallback.commands().flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).collectLatest {
-                when (it) {
-                    is FileDownloadCallback.DownloadCommand.ShowDownloadStartedMessage ->
-                        binding.browserLayout.makeSnackbarWithNoBottomInset(getString(it.messageId, it.fileName), Snackbar.LENGTH_SHORT).show()
-                    is FileDownloadCallback.DownloadCommand.ShowDownloadSuccessMessage ->
-                        binding.browserLayout.makeSnackbarWithNoBottomInset(getString(it.messageId, it.fileName), Snackbar.LENGTH_INDEFINITE).apply {
-                            this.setAction(R.string.downloadsDownloadFinishedActionName) { _ ->
-                                val result = downloadsFileActions.openFile(requireActivity(), File(it.filePath))
-                                this.dismiss()
-                                if (!result) {
-                                    binding.browserLayout.makeSnackbarWithNoBottomInset(
-                                        getString(R.string.downloadsCannotOpenFileErrorMessage), Snackbar.LENGTH_SHORT
-                                    ).show()
-                                }
-                            }
-                        }.show()
-                    is FileDownloadCallback.DownloadCommand.ShowDownloadFailedMessage ->
-                        binding.browserLayout.makeSnackbarWithNoBottomInset(it.messageId, Snackbar.LENGTH_LONG).show()
-                }
-            }
+            downloadCallback.commands()
+                .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
+                .collectLatest { processFileDownloadedCommand(it) }
         }
+    }
+
+    private fun processFileDownloadedCommand(command: FileDownloadCallback.DownloadCommand) {
+        when (command) {
+            is FileDownloadCallback.DownloadCommand.ShowDownloadStartedMessage -> showSnackbar(command.messageId, command.fileName)
+            is FileDownloadCallback.DownloadCommand.ShowDownloadFailedMessage -> showSnackbar(command.messageId)
+            is FileDownloadCallback.DownloadCommand.ShowDownloadSuccessMessage ->
+                binding.browserLayout.makeSnackbarWithNoBottomInset(
+                    getString(command.messageId, command.fileName), Snackbar.LENGTH_LONG
+                ).apply {
+                    this.setAction(R.string.downloadsDownloadFinishedActionName) { _ ->
+                        val result = downloadsFileActions.openFile(requireActivity(), File(command.filePath))
+                        if (!result) {
+                            showSnackbar(R.string.downloadsCannotOpenFileErrorMessage)
+                        }
+                    }
+                }.show()
+        }
+    }
+
+    private fun showSnackbar(@StringRes messageId: Int, arg: String = "") {
+        binding.browserLayout.makeSnackbarWithNoBottomInset(getString(messageId, arg), Snackbar.LENGTH_SHORT).show()
     }
 
     private fun addTabsObserver() {
