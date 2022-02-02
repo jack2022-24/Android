@@ -118,7 +118,7 @@ class DownloadsAdapter(private val downloadsItemListener: DownloadsItemListener)
             popupMenu.show(binding.root, anchor)
         }
 
-        // TODO ANA: move it in a convertor to add tests
+        // TODO ANA: move it in a convertor to add tests. Maybe use DataSizeFormatter (move it to a separate module).
         fun convertSize(sizeBytes: Double): String {
             val sizeKB = sizeBytes / 1024
             val sizeMB = sizeKB / 1024

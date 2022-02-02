@@ -40,6 +40,10 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.threeten.bp.Instant
+import org.threeten.bp.LocalDateTime
+import org.threeten.bp.ZoneId
+import org.threeten.bp.format.DateTimeFormatter
 import java.io.File
 import javax.inject.Inject
 import javax.inject.Provider
@@ -108,8 +112,33 @@ constructor(
 
     private fun DownloadItem.mapToDownloadViewItem(): DownloadViewItem = DownloadViewItem.Item(this)
 
-    private fun List<DownloadItem>.mapToDownloadViewItems(): List<DownloadViewItem> =
-        this.map { it.mapToDownloadViewItem() }
+    private fun List<DownloadItem>.mapToDownloadViewItems(): List<DownloadViewItem> {
+        val itemViews = mutableListOf<DownloadViewItem>()
+        var previousDate = timestamp(LocalDateTime.ofInstant(Instant.ofEpochMilli(this[0].createdAt), ZoneId.systemDefault()))
+
+        this.forEachIndexed { index, downloadItem ->
+            if (index == 0) {
+                itemViews.add(DownloadViewItem.Header(previousDate))
+                itemViews.add(downloadItem.mapToDownloadViewItem())
+            } else {
+                val thisDate = timestamp(LocalDateTime.ofInstant(Instant.ofEpochMilli(downloadItem.createdAt), ZoneId.systemDefault()))
+                if (previousDate == thisDate) {
+                    itemViews.add(downloadItem.mapToDownloadViewItem())
+                } else {
+                    itemViews.add(DownloadViewItem.Header(thisDate))
+                    itemViews.add(downloadItem.mapToDownloadViewItem())
+                    previousDate = thisDate
+                }
+            }
+        }
+
+        return itemViews
+    }
+
+    // Use fuzzy date from vpn once is extracted to a common module.
+    private fun timestamp(date: LocalDateTime = LocalDateTime.now()): String {
+        return DateTimeFormatter.ofPattern("yyyy-MM-dd").format(date)
+    }
 }
 
 @ContributesMultibinding(AppScope::class)

@@ -621,7 +621,7 @@ class BrowserTabFragment :
                                 val result = downloadsFileActions.openFile(requireActivity(), File(it.filePath))
                                 this.dismiss()
                                 if (!result) {
-                                    browserLayout.makeSnackbarWithNoBottomInset(
+                                    binding.browserLayout.makeSnackbarWithNoBottomInset(
                                         getString(R.string.downloadsCannotOpenFileErrorMessage), Snackbar.LENGTH_SHORT
                                     ).show()
                                 }
@@ -2073,7 +2073,7 @@ class BrowserTabFragment :
                     pixel.fire(AppPixelName.MENU_ACTION_REPORT_BROKEN_SITE_PRESSED)
                     viewModel.onBrokenSiteSelected()
                 }
-                    onMenuItemClicked(menuBinding.downloadsPopupMenuItem) {
+                onMenuItemClicked(menuBinding.downloadsPopupMenuItem) {
                     pixel.fire(AppPixelName.MENU_ACTION_DOWNLOADS_PRESSED)
                     browserActivity?.launchDownloads()
                 }

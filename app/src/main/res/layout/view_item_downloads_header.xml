@@ -19,8 +19,8 @@
     android:id="@+id/downloads_header_text_view"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:gravity="center"
-    android:paddingStart="24dp"
-    android:paddingTop="48dp"
-    android:paddingEnd="24dp"
+    android:padding="16dp"
+    android:textAllCaps="true"
+    android:textColor="@color/cornflowerBlue"
+    android:textSize="14sp"
     tools:text="TODAY" />

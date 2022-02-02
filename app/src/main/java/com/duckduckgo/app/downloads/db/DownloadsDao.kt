@@ -37,10 +37,10 @@ interface DownloadsDao {
     @Query("delete from downloads")
     suspend fun delete()
 
-    @Query("select * from downloads")
+    @Query("select * from downloads order by createdAt desc")
     fun getDownloadsAsFlow(): Flow<List<DownloadEntity>>
 
-    @Query("select * from downloads")
+    @Query("select * from downloads order by createdAt desc")
     suspend fun getDownloads(): List<DownloadEntity>
 
     @Query("select * from downloads where downloadId = :downloadId")
