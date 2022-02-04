@@ -21,7 +21,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View.VISIBLE
 import androidx.appcompat.app.AlertDialog
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.ConcatAdapter
@@ -253,20 +252,6 @@ class BookmarksActivity : DuckDuckGoActivity() {
     override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
         searchMenuItem = menu?.findItem(R.id.action_search)
         setSearchMenuItemVisibility()
-        searchMenuItem?.setOnActionExpandListener(
-            object : MenuItem.OnActionExpandListener {
-                override fun onMenuItemActionExpand(item: MenuItem?): Boolean {
-                    viewModel.fetchBookmarksAndFolders()
-                    return true
-                }
-
-                override fun onMenuItemActionCollapse(item: MenuItem?): Boolean {
-                    viewModel.fetchBookmarksAndFolders(getParentFolderId())
-                    return true
-                }
-            }
-        )
-
         initializeSearchBar()
         return super.onPrepareOptionsMenu(menu)
     }
@@ -274,7 +259,7 @@ class BookmarksActivity : DuckDuckGoActivity() {
     private fun initializeSearchBar() {
         val listener = BookmarksEntityQueryListener(viewModel, bookmarksAdapter, bookmarkFoldersAdapter)
         searchMenuItem?.setOnMenuItemClickListener {
-            searchBar.handle(SearchBar.Event.ShowSearchBar)
+            showSearchBar()
             return@setOnMenuItemClickListener true
         }
 
@@ -294,8 +279,13 @@ class BookmarksActivity : DuckDuckGoActivity() {
         }
     }
 
+    private fun showSearchBar() {
+        viewModel.fetchBookmarksAndFolders()
+        searchBar.handle(SearchBar.Event.ShowSearchBar)
+    }
+
     private fun hideSearchBar() {
-        toolbar.visibility = VISIBLE
+        viewModel.fetchBookmarksAndFolders(getParentFolderId())
         searchBar.handle(SearchBar.Event.DismissSearchBar)
     }
 
